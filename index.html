@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Timer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1e1e1e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;user-select:none}
+.timer{display:flex;flex-direction:column;align-items:center;gap:16px}
+.display{font-size:clamp(48px,12vw,80px);font-weight:200;letter-spacing:4px;font-variant-numeric:tabular-nums;color:#fff}
+.controls{display:flex;gap:12px;align-items:center}
+button{background:rgba(155,155,155,.25);border:none;color:#fff;width:44px;height:44px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+button:hover{background:rgba(155,155,155,.45)}
+button.active{background:rgba(100,180,255,.3)}
+.sound-btn{font-size:16px;width:36px;height:36px;position:absolute;top:8px;right:12px}
+.adj{font-size:22px;font-weight:300}
+</style>
+</head>
+<body>
+<button class="sound-btn" id="soundBtn" title="Toggle sound">🔔</button>
+<div class="timer">
+  <div class="display" id="display">20:00</div>
+  <div class="controls">
+    <button class="adj" id="minus" title="−1 min">−</button>
+    <button id="playPause" title="Start">▶</button>
+    <button id="reset" title="Reset">↺</button>
+    <button class="adj" id="plus" title="+1 min">+</button>
+  </div>
+</div>
+<script>
+const params=new URLSearchParams(location.search);
+const defaultMin=Math.max(1,Math.min(999,parseInt(params.get('m'))||20));
+let totalSec=defaultMin*60,remaining=totalSec,running=false,interval=null,soundOn=true;
+const display=document.getElementById('display');
+const playPause=document.getElementById('playPause');
+const resetBtn=document.getElementById('reset');
+const minusBtn=document.getElementById('minus');
+const plusBtn=document.getElementById('plus');
+const soundBtn=document.getElementById('soundBtn');
+
+function fmt(s){const m=Math.floor(s/60),sec=s%60;return(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;}
+function render(){display.textContent=fmt(remaining);}
+
+function beep(){
+  if(!soundOn)return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [0,0.3,0.6].forEach(t=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=880;o.type='sine';
+      g.gain.setValueAtTime(0.3,ctx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.25);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+0.25);
+    });
+  }catch(e){}
+}
+
+function start(){
+  if(remaining<=0)return;
+  running=true;playPause.textContent='⏸';
+  minusBtn.style.display='none';plusBtn.style.display='none';
+  interval=setInterval(()=>{
+    remaining--;render();
+    if(remaining<=0){stop();beep();display.style.color='#ff6b6b';}
+  },1000);
+}
+function stop(){running=false;playPause.textContent='▶';clearInterval(interval);}
+function resetTimer(){
+  stop();remaining=totalSec;display.style.color='#fff';render();
+  minusBtn.style.display='';plusBtn.style.display='';
+}
+
+playPause.onclick=()=>running?stop():start();
+resetBtn.onclick=resetTimer;
+minusBtn.onclick=()=>{if(!running&&totalSec>60){totalSec-=60;remaining=totalSec;render();}};
+plusBtn.onclick=()=>{if(!running&&totalSec<5940){totalSec+=60;remaining=totalSec;render();}};
+soundBtn.onclick=()=>{soundOn=!soundOn;soundBtn.textContent=soundOn?'🔔':'🔕';};
+render();
+</script>
+</body>
+</html>
