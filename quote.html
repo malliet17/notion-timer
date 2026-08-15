@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daily Quote</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1e1e1e;color:#fff;font-family:Georgia,'Times New Roman',serif;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;user-select:none;padding:16px}
+.quote-wrap{max-width:440px;text-align:center}
+.mark{font-size:36px;color:#5b8fb9;line-height:1;margin-bottom:4px}
+.text{font-size:clamp(14px,3vw,17px);font-style:italic;line-height:1.5;color:#ddd;margin-bottom:10px}
+.author{font-size:clamp(11px,2.2vw,13px);color:#888;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:1px;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="quote-wrap">
+  <div class="mark">❝</div>
+  <div class="text" id="quote"></div>
+  <div class="author" id="author"></div>
+</div>
+<script>
+const quotes=[
+["The way to get started is to quit talking and begin doing.","Walt Disney"],
+["It is during our darkest moments that we must focus to see the light.","Aristotle"],
+["Do what you can, with what you have, where you are.","Theodore Roosevelt"],
+["Success is not final, failure is not fatal: it is the courage to continue that counts.","Winston Churchill"],
+["The only way to do great work is to love what you do.","Steve Jobs"],
+["Believe you can and you're halfway there.","Theodore Roosevelt"],
+["Act as if what you do makes a difference. It does.","William James"],
+["What lies behind us and what lies before us are tiny matters compared to what lies within us.","Ralph Waldo Emerson"],
+["The future belongs to those who believe in the beauty of their dreams.","Eleanor Roosevelt"],
+["It always seems impossible until it's done.","Nelson Mandela"],
+["You are never too old to set another goal or to dream a new dream.","C.S. Lewis"],
+["The best time to plant a tree was 20 years ago. The second best time is now.","Chinese Proverb"],
+["Don't watch the clock; do what it does. Keep going.","Sam Levenson"],
+["Everything you've ever wanted is on the other side of fear.","George Addair"],
+["Start where you are. Use what you have. Do what you can.","Arthur Ashe"],
+["The secret of getting ahead is getting started.","Mark Twain"],
+["I have not failed. I've just found 10,000 ways that won't work.","Thomas Edison"],
+["Quality is not an act, it is a habit.","Aristotle"],
+["The only limit to our realization of tomorrow is our doubts of today.","Franklin D. Roosevelt"],
+["What you do today can improve all your tomorrows.","Ralph Marston"],
+["Hard work beats talent when talent doesn't work hard.","Tim Notke"],
+["Your time is limited, don't waste it living someone else's life.","Steve Jobs"],
+["She believed she could, so she did.","R.S. Grey"],
+["The question isn't who is going to let me; it's who is going to stop me.","Ayn Rand"],
+["A year from now you may wish you had started today.","Karen Lamb"],
+["You don't have to be great to start, but you have to start to be great.","Zig Ziglar"],
+["Discipline is the bridge between goals and accomplishment.","Jim Rohn"],
+["Small daily improvements over time lead to stunning results.","Robin Sharma"],
+["The only person you are destined to become is the person you decide to be.","Ralph Waldo Emerson"],
+["Focus on being productive instead of busy.","Tim Ferriss"],
+["Done is better than perfect.","Sheryl Sandberg"]
+];
+// Pick quote based on day of year (rotates daily, deterministic)
+const now=new Date();
+const start=new Date(now.getFullYear(),0,0);
+const dayOfYear=Math.floor((now-start)/864e5);
+const idx=dayOfYear%quotes.length;
+document.getElementById('quote').textContent=quotes[idx][0];
+document.getElementById('author').textContent='— '+quotes[idx][1];
+</script>
+</body>
+</html>
