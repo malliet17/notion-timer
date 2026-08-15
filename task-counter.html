@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Counter</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1e1e1e;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .container {
+    text-align: center;
+    width: 100%;
+    max-width: 320px;
+    padding: 16px;
+  }
+  .header {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #888;
+    margin-bottom: 12px;
+  }
+  .count-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .done-count {
+    font-size: 48px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+  .total-count {
+    font-size: 24px;
+    color: #666;
+    font-weight: 400;
+  }
+  .pct {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 14px;
+  }
+  .bar-track {
+    width: 100%;
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4a9eff, #6bb5ff);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+  .btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s, background 0.2s;
+  }
+  .btn:active { transform: scale(0.92); }
+  .btn-done {
+    background: #4a9eff;
+    color: #fff;
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+  }
+  .btn-done:hover { background: #5eaaff; }
+  .btn-undo {
+    background: #333;
+    color: #aaa;
+    font-size: 18px;
+  }
+  .btn-undo:hover { background: #444; }
+  .btn-reset {
+    background: #333;
+    color: #aaa;
+    font-size: 16px;
+  }
+  .btn-reset:hover { background: #444; }
+  .target-row {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .target-label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .target-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #444;
+    background: transparent;
+    color: #888;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .target-btn:hover { border-color: #666; color: #bbb; }
+  .target-val {
+    font-size: 16px;
+    color: #aaa;
+    min-width: 24px;
+    text-align: center;
+  }
+  .complete-msg {
+    display: none;
+    font-size: 13px;
+    color: #4a9eff;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">TASKS TODAY</div>
+  <div class="count-row">
+    <span class="done-count" id="done">0</span>
+    <span class="total-count">/<span id="total">8</span></span>
+  </div>
+  <div class="pct" id="pct">0% complete</div>
+  <div class="bar-track">
+    <div class="bar-fill" id="bar"></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-undo" id="undoBtn" title="Undo">−</button>
+    <button class="btn btn-done" id="doneBtn" title="Complete a task">✓</button>
+    <button class="btn btn-reset" id="resetBtn" title="Reset">↺</button>
+  </div>
+  <div class="target-row">
+    <span class="target-label">Target</span>
+    <button class="target-btn" id="targetDown">−</button>
+    <span class="target-val" id="targetVal">8</span>
+    <button class="target-btn" id="targetUp">+</button>
+  </div>
+  <div class="complete-msg" id="completeMsg">🎯 ALL DONE</div>
+</div>
+<script>
+(function() {
+  const KEY = 'taskCounter_v1';
+  const today = () => new Date().toISOString().split('T')[0];
+
+  function load() {
+    try {
+      const d = JSON.parse(localStorage.getItem(KEY));
+      if (d && d.date === today()) return d;
+    } catch(e) {}
+    return { date: today(), done: 0, target: 8 };
+  }
+
+  function save(d) {
+    localStorage.setItem(KEY, JSON.stringify(d));
+  }
+
+  let data = load();
+
+  const $done = document.getElementById('done');
+  const $total = document.getElementById('total');
+  const $pct = document.getElementById('pct');
+  const $bar = document.getElementById('bar');
+  const $targetVal = document.getElementById('targetVal');
+  const $completeMsg = document.getElementById('completeMsg');
+
+  function render() {
+    $done.textContent = data.done;
+    $total.textContent = data.target;
+    $targetVal.textContent = data.target;
+    const pct = data.target > 0 ? Math.round((data.done / data.target) * 100) : 0;
+    $pct.textContent = pct + '% complete';
+    $bar.style.width = Math.min(pct, 100) + '%';
+    if (data.done >= data.target && data.target > 0) {
+      $bar.style.background = 'linear-gradient(90deg, #22c55e, #4ade80)';
+      $completeMsg.style.display = 'block';
+    } else {
+      $bar.style.background = 'linear-gradient(90deg, #4a9eff, #6bb5ff)';
+      $completeMsg.style.display = 'none';
+    }
+  }
+
+  document.getElementById('doneBtn').onclick = () => {
+    data.done++;
+    data.date = today();
+    save(data);
+    render();
+  };
+
+  document.getElementById('undoBtn').onclick = () => {
+    if (data.done > 0) {
+      data.done--;
+      save(data);
+      render();
+    }
+  };
+
+  document.getElementById('resetBtn').onclick = () => {
+    data.done = 0;
+    data.date = today();
+    save(data);
+    render();
+  };
+
+  document.getElementById('targetUp').onclick = () => {
+    data.target++;
+    save(data);
+    render();
+  };
+
+  document.getElementById('targetDown').onclick = () => {
+    if (data.target > 1) {
+      data.target--;
+      save(data);
+      render();
+    }
+  };
+
+  // Auto-reset at midnight
+  setInterval(() => {
+    if (data.date !== today()) {
+      data = { date: today(), done: 0, target: data.target };
+      save(data);
+      render();
+    }
+  }, 60000);
+
+  render();
+})();
+</script>
+</body>
+</html>
