@@ -30,28 +30,30 @@ body{background:#1e1e1e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,
 </div>
 <script>
 const now=new Date();
-const dayOfWeek=now.getDay(); // 0=Sun..6=Sat
+const jsDay=now.getDay(); // 0=Sun..6=Sat
+// Mon-start index: Mon=0, Tue=1, ..., Sun=6
+const monIdx=(jsDay+6)%7;
 
 // ISO week number
 function getWeek(d){const t=new Date(d.valueOf());t.setDate(t.getDate()+3-(t.getDay()+6)%7);const y=t.getFullYear();const w=Math.ceil((((t-new Date(y,0,4))/864e5)+1)/7);return w;}
 
 document.getElementById('weekNum').textContent='WEEK '+getWeek(now);
 
-// Progress: Sun=start → Sat=end. Each day ≈ 14.29%. Interpolate within current day by hour.
+// Progress: Mon=start → Sun=end
 const hour=now.getHours()+now.getMinutes()/60;
 const dayProgress=Math.min(1,Math.max(0,hour/24));
-const pct=Math.min(100,Math.round((dayOfWeek+dayProgress)/7*100));
+const pct=Math.min(100,Math.round((monIdx+dayProgress)/7*100));
 document.getElementById('pct').textContent=pct+'%';
 document.getElementById('fill').style.width=pct+'%';
 
-// Day labels — all 7 days
+// Day labels Mon–Sun
 const daysEl=document.getElementById('days');
-['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d,i)=>{
+['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach((d,i)=>{
   const span=document.createElement('span');
   span.textContent=d;
   span.className='day';
-  if(i<dayOfWeek)span.classList.add('done');
-  if(i===dayOfWeek)span.classList.add('today');
+  if(i<monIdx)span.classList.add('done');
+  if(i===monIdx)span.classList.add('today');
   daysEl.appendChild(span);
 });
 </script>
