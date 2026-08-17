@@ -6,36 +6,32 @@
 <title>Weather</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#1e1e1e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;user-select:none;padding:12px}
-.wrap{width:100%;max-width:420px;display:flex;flex-direction:column;gap:8px}
-.top{display:flex;align-items:center;gap:14px}
-.icon{font-size:clamp(36px,8vw,48px);line-height:1}
-.main{display:flex;flex-direction:column;gap:2px}
-.temp{font-size:clamp(28px,6vw,36px);font-weight:700;color:#e8e8e8;line-height:1}
-.desc{font-size:clamp(12px,2.5vw,14px);color:#9b9b9b;text-transform:capitalize}
-.loc{font-size:clamp(10px,2vw,11px);color:#666;letter-spacing:0.5px}
-.details{display:flex;gap:16px;flex-wrap:wrap}
-.detail{font-size:clamp(11px,2.2vw,13px);color:#777}
-.detail span{color:#aaa}
-.forecast{display:flex;justify-content:space-between;margin-top:4px}
-.fday{display:flex;flex-direction:column;align-items:center;gap:2px}
-.fday .day{font-size:clamp(9px,1.8vw,11px);color:#666;text-transform:uppercase}
-.fday .ficon{font-size:clamp(16px,3.5vw,20px)}
-.fday .ftemp{font-size:clamp(10px,2vw,12px);color:#999}
+body{background:#1e1e1e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;user-select:none;padding:8px 16px}
+.wrap{width:100%;max-width:700px;display:flex;align-items:center;gap:20px}
+.now{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.icon{font-size:28px;line-height:1}
+.temp{font-size:24px;font-weight:700;color:#e8e8e8;line-height:1}
+.meta{display:flex;flex-direction:column;gap:1px}
+.desc{font-size:11px;color:#9b9b9b;text-transform:capitalize}
+.details{font-size:10px;color:#666}
+.sep{width:1px;height:32px;background:#333;flex-shrink:0}
+.forecast{display:flex;gap:14px;flex:1;justify-content:space-around}
+.fday{display:flex;align-items:center;gap:6px}
+.fday .day{font-size:10px;color:#666;text-transform:uppercase;width:24px}
+.fday .ficon{font-size:16px}
+.fday .ftemp{font-size:11px;color:#999;white-space:nowrap}
 .fday .fhi{color:#bbb}
-.err{color:#666;font-size:13px;text-align:center}
+.err{color:#666;font-size:12px}
 </style>
 </head>
 <body>
 <div class="wrap" id="w">
-  <div class="err" id="loading">Loading weather…</div>
+  <div class="err" id="loading">Loading…</div>
 </div>
 <script>
-// NYC coordinates
-const LAT=40.7128,LON=-74.0060,CITY='New York';
-
+const LAT=40.7128,LON=-74.0060,CITY='NYC';
 const WMO={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌧',55:'🌧',56:'🌨',57:'🌨',61:'🌧',63:'🌧',65:'🌧️',66:'🌨',67:'🌨',71:'🌨',73:'❄️',75:'❄️',77:'❄️',80:'🌦',81:'🌧',82:'⛈',85:'❄️',86:'❄️',95:'⛈',96:'⛈',99:'⛈'};
-const WMO_DESC={0:'Clear sky',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',48:'Fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',56:'Freezing drizzle',57:'Freezing drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',66:'Freezing rain',67:'Freezing rain',71:'Light snow',73:'Snow',75:'Heavy snow',77:'Snow grains',80:'Light showers',81:'Showers',82:'Heavy showers',85:'Snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Severe thunderstorm'};
+const WMO_DESC={0:'Clear',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Fog',51:'Drizzle',53:'Drizzle',55:'Heavy drizzle',56:'Freezing drizzle',57:'Freezing drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',66:'Freezing rain',67:'Freezing rain',71:'Light snow',73:'Snow',75:'Heavy snow',77:'Snow grains',80:'Showers',81:'Showers',82:'Heavy showers',85:'Snow showers',86:'Snow showers',95:'Thunderstorm',96:'T-storm + hail',99:'Severe storm'};
 const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 async function load(){
@@ -44,26 +40,21 @@ async function load(){
     const d=await r.json();
     const c=d.current;
     const daily=d.daily;
-    
     const icon=WMO[c.weather_code]||'🌡';
     const desc=WMO_DESC[c.weather_code]||'';
-    
+
     let html=`
-      <div class="top">
+      <div class="now">
         <div class="icon">${icon}</div>
-        <div class="main">
+        <div class="meta">
           <div class="temp">${Math.round(c.temperature_2m)}°F</div>
-          <div class="desc">${desc}</div>
-          <div class="loc">${CITY}</div>
+          <div class="desc">${desc} · ${CITY}</div>
+          <div class="details">Feels ${Math.round(c.apparent_temperature)}° · ${c.relative_humidity_2m}% · ${Math.round(c.wind_speed_10m)} mph</div>
         </div>
       </div>
-      <div class="details">
-        <div class="detail">Feels <span>${Math.round(c.apparent_temperature)}°</span></div>
-        <div class="detail">Humidity <span>${c.relative_humidity_2m}%</span></div>
-        <div class="detail">Wind <span>${Math.round(c.wind_speed_10m)} mph</span></div>
-      </div>
+      <div class="sep"></div>
       <div class="forecast">`;
-    
+
     for(let i=1;i<5;i++){
       const dt=new Date(daily.time[i]+'T12:00:00');
       const dayName=DAYS[dt.getDay()];
@@ -71,7 +62,7 @@ async function load(){
       html+=`<div class="fday">
         <div class="day">${dayName}</div>
         <div class="ficon">${ficon}</div>
-        <div class="ftemp"><span class="fhi">${Math.round(daily.temperature_2m_max[i])}°</span> ${Math.round(daily.temperature_2m_min[i])}°</div>
+        <div class="ftemp"><span class="fhi">${Math.round(daily.temperature_2m_max[i])}°</span>/${Math.round(daily.temperature_2m_min[i])}°</div>
       </div>`;
     }
     html+='</div>';
@@ -81,7 +72,7 @@ async function load(){
   }
 }
 load();
-setInterval(load,1800000); // refresh every 30 min
+setInterval(load,1800000);
 </script>
 </body>
 </html>
