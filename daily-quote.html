@@ -8,14 +8,14 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#1e1e1e;color:#fff;font-family:Georgia,'Times New Roman',serif;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;user-select:none;padding:16px}
 .quote-wrap{max-width:90%;text-align:left}
-.mark{font-size:22px;color:#5b8fb9;vertical-align:top}
-.text{font-size:clamp(14px,2.6vw,17px);font-style:italic;line-height:1.5;color:#ddd}
-.author{font-size:clamp(11px,2.2vw,13px);color:#888;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;display:block;margin-top:6px}
+.mark{font-size:14px;color:#5b8fb9;vertical-align:baseline}
+.text{font-size:13px;font-style:italic;line-height:1.5;color:#ddd}
+.author{font-size:11px;color:#888;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:0.5px;text-transform:uppercase;white-space:nowrap}
 </style>
 </head>
 <body>
 <div class="quote-wrap">
-  <span class="mark">❝ </span><span class="text" id="quote"></span><div class="author" id="author"></div>
+  <span class="mark">❝ </span><span class="text" id="quote"></span> <span class="author" id="author"></span>
 </div>
 <script>
 const quotes=[
